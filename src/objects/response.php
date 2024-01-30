@@ -40,6 +40,7 @@ enum ResponseType
     case EXTRA;
     case ITEM_UPDATED;
     case FAILED_TO_UPDATE;
+    case INVALID_PERM;
     case REQ_FAILED;
     case REQ_SUCCESS;
 

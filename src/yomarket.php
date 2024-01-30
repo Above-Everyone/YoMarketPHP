@@ -108,16 +108,63 @@ class YoMarket
         if(empty($api_resp))
             return (new Response(ResponseType::REQ_FAILED, 0));
 
-        $searchErrors = array("[ X ] Error, You are not a price manager to use this. The price has been sent to admins to investigate....", 
-                              "[ X ] Error, failed to change price on ". $item->id. " ". $price. "...!");
+        if($api_resp === "[ X ] Error, You are not a price manager to use this. The price has been sent to admins to investigate....")
+            return (new Response(ResponseType::INVALID_PERM, 0));
 
-        if(in_array($api_resp, $searchErrors))
-        return (new Response(ResponseType::FAILED_TO_UPDATE, 0));
+        if($api_resp === "[ X ] Error, failed to change price on ". $item->id. " ". $price. "...!")
+            return (new Response(ResponseType::FAILED_TO_UPDATE, 0));
 
         if(str_contains($api_resp, "[ + ]") && str_contains($api_resp, "successfully"))
             return (new Response(ResponseType::ITEM_UPDATED, 0));
 
         return (new Response(ResponseType::NONE, 0));
+    }
+
+    public function reqSuggestions(): Response
+    {
+        $api_resp = sendReq(self::SUGGESTION_LOGS_ENDPOINT);
+
+        if(empty($api_resp))
+            return (new Response(ResponseType::REQ_FAILED, 0));
+
+        /* 
+            TO-DO
+                - Create an temporary array
+                - Parse Suggestions using PriceLog Class
+                - Append class to the temporary array
+                - Check if there more than one element in array to set Response->type signal
+        */
+
+        return (new Response(ResponseType::NONE, 0));
+    }
+
+    public function reqPriceLogs(): Response
+    {
+        {
+            $api_resp = sendReq(self::PRICE_LOGS_ENDPOINT);
+    
+            if(empty($api_resp))
+                return (new Response(ResponseType::REQ_FAILED, 0));
+    
+            /* 
+                TO-DO
+                    - Create an temporary array
+                    - Parse logs using PriceLog Class
+                    - Append class to the temporary array
+                    - Check if there more than one element in array to set Response->type signal
+            */
+    
+            return (new Response(ResponseType::NONE, 0));
+    }
+
+    public static function reqStats(): string 
+    {
+        $api_resp = sendReq(self::STATISTICS_ENDPOINT);
+
+        if(empty($api_resp))
+            return "";
+
+        return $api_resp;
     }
 }
 

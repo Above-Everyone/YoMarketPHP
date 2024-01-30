@@ -53,7 +53,7 @@ class Item
     }
 }
 
-class price_log
+class PriceLog
 {
     public $app_t;
     public $user;
