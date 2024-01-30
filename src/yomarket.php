@@ -3,9 +3,9 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-include_once("utils.php");
-include_once("response.php");
-include_once("yw_info.php");
+require_once("objects/utils.php");
+require_once("objects/response.php");
+require_once("objects/yw_info.php");
 
 class YoMarket
 {
@@ -65,7 +65,7 @@ class YoMarket
         /* Split String (Used as an if since there are no exception) */
         $lines = explode("\n", $api_resp);
 
-        if(str_contains($api_resp, "\n") && (!str_starts_with($api_resp, "[") && !str_ends_with($api_resp, "]"))
+        if(str_contains($api_resp, "\n") && (!str_starts_with($api_resp, "[") && !str_ends_with($api_resp, "]")))
         {
             /* Remove Item Info On First Line for Yoworld.Info's Price Logs */
             $content = str_replace($lines[0], "", $api_resp);
