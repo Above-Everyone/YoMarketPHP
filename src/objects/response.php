@@ -40,7 +40,7 @@ enum ResponseType
     case EXTRA;
     case ITEM_UPDATED;
     case FAILED_TO_UPDATE;
-    case API_FAILURE;
+    case REQ_FAILED;
     case REQ_SUCCESS;
 
     public static function r2str(ResponseType $r): string 
@@ -62,8 +62,8 @@ enum ResponseType
             case ResponseType::FAILED_TO_UPDATE:
                 return "ResponseType::FAILED_TO_UPDATE";
 
-            case ResponseType::API_FAILED:
-                return "ResponseType::API_FAILED";
+            case ResponseType::REQ_FAILED:
+                return "ResponseType::REQ_FAILED";
 
             case ResponseType::REQ_SUCCESS:
                 return "ResponseType::REQ_SUCCESS";

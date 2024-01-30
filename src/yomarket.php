@@ -39,13 +39,19 @@ class YoMarket
         $this->query = $q;
     }
 
+    /*
+        searchItem(string $query, string $ip): Response
+
+        Description:
+            Web requesting YoMarket's search endpoint and parsing the response
+    */
     public function searchItem(string $query, string $ip): Response 
     {
         $new_query = str_replace(" ", "%20", $query);
-        $api_resp = sendReq(self::SEARCH_ENDPOINT. $new_query, array());
+        $api_resp = sendReq(self::SEARCH_ENDPOINT. $new_query, array("ip" => $ip));
 
         if(empty($api_resp))
-            return (new Response(ResponseType::NONE, 0));
+            return (new Response(ResponseType::REQ_FAILED, 0));
 
         $searchErrors = array("[ X ] Error, You must enter an Item name or ID", 
                               "[ X ] Error, No item was found for ${new_query}");
@@ -85,6 +91,31 @@ class YoMarket
 
         if(count($this->found) > 1)
             return (new Response(ReponseType::EXTRA, $this->found));
+
+        return (new Response(ResponseType::NONE, 0));
+    }
+
+    /*
+        changePrice(Item $item, string $price, string $ip): Response
+
+        Description:
+            Web requesting YoMarket's change endpoint and parsing the response for SUCCESS/FAIL signals
+    */
+    public function changePrice(Item $item, string $price, string $ip): Response
+    {
+        $api_resp = sendReq(self::CHANGE_ENDPOINT. $item->id, array("price" => $price, "ip" => $ip));
+
+        if(empty($api_resp))
+            return (new Response(ResponseType::REQ_FAILED, 0));
+
+        $searchErrors = array("[ X ] Error, You are not a price manager to use this. The price has been sent to admins to investigate....", 
+                              "[ X ] Error, failed to change price on ". $item->id. " ". $price. "...!");
+
+        if(in_array($api_resp, $searchErrors))
+        return (new Response(ResponseType::FAILED_TO_UPDATE, 0));
+
+        if(str_contains($api_resp, "[ + ]") && str_contains($api_resp, "successfully"))
+            return (new Response(ResponseType::ITEM_UPDATED, 0));
 
         return (new Response(ResponseType::NONE, 0));
     }
