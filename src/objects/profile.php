@@ -3,8 +3,6 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-include_once("objects.php");
-
 enum Badges 
 {
     case NONE;
@@ -27,14 +25,13 @@ class Profile
     public $yoworld;            // string
 	public $yoworld_id;         // string
 	public $net_worth;          // string
-	public $badges;             // string
+	public $badges;             // Array[Badges]
 	
     public $discord;            // string
 	public $discord_id;         // string
 	
     public $facebook;           // string
 	public $facebook_id;        // string
-    public $badges;             // Array[Badges]
 	
     public $display_badges;     // bool
 	public $display_worth;      // bool
