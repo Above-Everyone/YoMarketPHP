@@ -17,7 +17,7 @@ function sendReq(string $URL, array $EXTRA_PARM): string
 
     // Adding more GET parameters using $EXTRA_PARM
     if(count($EXTRA_PARM) > 0) {
-        foreach($GET_PARM as $parm_name => $parm_value)
+        foreach($EXTRA_PARM as $parm_name => $parm_value)
         {
             $req_url = $req_url. "&$parm_name=$parm_value";
         }

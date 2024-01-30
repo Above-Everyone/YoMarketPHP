@@ -7,7 +7,7 @@ class Response
 {
     public $type;
     public $result;
-    function __construct(ResponseType $t, array | Item | int | string $r)
+    function __construct(ResponseType $t, array | Profile | Item | int | string $r)
     {
         $this->type = $t;
         $this->result = $r;

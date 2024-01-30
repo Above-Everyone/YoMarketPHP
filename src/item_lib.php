@@ -4,10 +4,11 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 require_once("objects/utils.php");
+require_once("objects/items.php");
 require_once("objects/response.php");
 require_once("objects/yw_info.php");
 
-class YoMarket
+class Items
 {
     /*
         API Endpoints
@@ -23,19 +24,12 @@ class YoMarket
     const PROFILE_ENDPOINT          = "https://api.yomarket.info/profile?username=";
     const AUTH_ENDPOINT             = "https://api.yomarket.info/auth?username=";
 
-    // YoMarket->Response->getResults(); // array | Item
-    // YoMarket->Response->type2str(); // string
+    // Items->Response->getResults(); // array | Item
+    // Items->Response->type2str(); // string
     public $Respone;
 
-    public $profile;
     public $query;
-    function YoMarket(string | Profile $profile, string $q) {
-        $this->profile = $profile;
-
-        if(is_string($profile)) {
-            $this->profile = (new Profile($profile));
-        }
-
+    function Items(string $q) {
         $this->query = $q;
     }
 
@@ -59,7 +53,7 @@ class YoMarket
         if(in_array($api_resp, $searchErrors))
             return (new Response(ResponseType::NONE, 0));
 
-        if(!str_contains("\n"))
+        if(!str_contains($api_resp, "\n"))
             return (new Response(ResponseType::EXACT, (new Item(explode(",", remove_strings($api_resp, array("'", "]", "[")))))));
 
         /* Split String (Used as an if since there are no exception) */
@@ -70,7 +64,7 @@ class YoMarket
             /* Remove Item Info On First Line for Yoworld.Info's Price Logs */
             $content = str_replace($lines[0], "", $api_resp);
             
-            $item_info = explode(",", YoMarket::remove_strings($lines[0], array("[", "]", "'")));
+            $item_info = explode(",", remove_strings($lines[0], array("[", "]", "'")));
 
             $item = new Item($item_info);
             $item->ywinfo_prices = YW_INFO_LOGS::parse_prices($content);
@@ -78,7 +72,7 @@ class YoMarket
             return (new Response(ResponseType::EXACT, $item));
         }
         
-        $this->found;
+        $this->found = array();
         foreach($lines as $line)
         {
             $info = explode(",", remove_strings($line, array("'", "[", "]")));
@@ -90,7 +84,7 @@ class YoMarket
             return (new Response(ResponseType::EXACT, $this->found[0]));
 
         if(count($this->found) > 1)
-            return (new Response(ReponseType::EXTRA, $this->found));
+            return (new Response(ResponseType::EXTRA, $this->found));
 
         return (new Response(ResponseType::NONE, 0));
     }
@@ -101,14 +95,14 @@ class YoMarket
         Description:
             Web requesting YoMarket's change endpoint and parsing the response for SUCCESS/FAIL signals
     */
-    public function changePrice(Item $item, string $price, string $ip): Response
+    public function changePrice(Item $item, string $price, string $username, string $ip): Response
     {
-        $api_resp = sendReq(self::CHANGE_ENDPOINT. $item->id, array("price" => $price, "ip" => $ip));
+        $api_resp = sendReq(self::CHANGE_ENDPOINT. $item->id, array("user" => $username, "price" => $price, "ip" => $ip));
 
         if(empty($api_resp))
             return (new Response(ResponseType::REQ_FAILED, 0));
 
-        if($api_resp === "[ X ] Error, You are not a price manager to use this. The price has been sent to admins to investigate....")
+        if($api_resp === "[ X ] Error, You aren't a manager to change price. Price has been suggested to admins to investigate....")
             return (new Response(ResponseType::INVALID_PERM, 0));
 
         if($api_resp === "[ X ] Error, failed to change price on ". $item->id. " ". $price. "...!")
@@ -120,43 +114,73 @@ class YoMarket
         return (new Response(ResponseType::NONE, 0));
     }
 
+    /*
+        reqSuggestions(): Response
+
+        Description:
+            Web requesting YoMarket's Price Suggestion Logs
+    */
     public function reqSuggestions(): Response
     {
-        $api_resp = sendReq(self::SUGGESTION_LOGS_ENDPOINT);
+        $api_resp = sendReq(self::SUGGESTION_LOGS_ENDPOINT, array());
 
         if(empty($api_resp))
             return (new Response(ResponseType::REQ_FAILED, 0));
+        
+        $this->found = array();
+        $lines = explode("\n", remove_strings($api_resp, array("'", "(", ")", "[", "]")));
 
-        /* 
-            TO-DO
-                - Create an temporary array
-                - Parse Suggestions using PriceLog Class
-                - Append class to the temporary array
-                - Check if there more than one element in array to set Response->type signal
-        */
+        foreach($lines as $line)
+        {
+            /* ('APP_TYPE','IP_ADDR','ITEM_ID','OLD_PRICE','SUGGESTED_PRICE','TIMESTAMP') */
+            $info = explode(",", $line);
+
+            if(count($info) == 6)
+                array_push($this->found, (new PriceLog($info)));
+        }
+
+        if(count($this->found) > 0)
+            return (new Response(ResponseType::REQ_SUCCESS, $this->found));
 
         return (new Response(ResponseType::NONE, 0));
     }
 
+    /*
+        reqPriceLogs(): Response
+
+        Description:
+            Web requesting YoMarket's Price Change Logs
+    */
     public function reqPriceLogs(): Response
     {
+        $api_resp = sendReq(self::PRICE_LOGS_ENDPOINT, array());
+
+        if(empty($api_resp))
+            return (new Response(ResponseType::REQ_FAILED, 0));
+
+        $this->found = array();
+        $lines = explode("\n", remove_strings($api_resp, array("'", "(", ")", "[", "]")));
+
+        foreach($lines as $line)
         {
-            $api_resp = sendReq(self::PRICE_LOGS_ENDPOINT);
-    
-            if(empty($api_resp))
-                return (new Response(ResponseType::REQ_FAILED, 0));
-    
-            /* 
-                TO-DO
-                    - Create an temporary array
-                    - Parse logs using PriceLog Class
-                    - Append class to the temporary array
-                    - Check if there more than one element in array to set Response->type signal
-            */
-    
-            return (new Response(ResponseType::NONE, 0));
+            /* ('APP_TYPE','IP_ADDR','ITEM_ID','OLD_PRICE','SUGGESTED_PRICE','TIMESTAMP') */
+            $info = explode(",", $line);
+            if(count($info) == 6)
+                array_push($this->found, (new PriceLog($info)));
+        }
+
+        if(count($this->found) > 0)
+            return (new Response(ResponseType::REQ_SUCCESS, $this->found));
+
+        return (new Response(ResponseType::NONE, 0));
     }
 
+    /*
+        ::reqStats(): string 
+
+        Description:
+            Web requesting YoMarket's Statistics
+    */
     public static function reqStats(): string 
     {
         $api_resp = sendReq(self::STATISTICS_ENDPOINT);

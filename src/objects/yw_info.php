@@ -10,7 +10,7 @@ class YW_INFO_LOGS
     public $approved_by;
     public $timestamp;
 
-    function YW_INFO_LOGS(string $p, bool $a, string $a_by, string $time)
+    function __construct(string $p, bool $a, string $a_by, string $time)
     {
         $this->price = $p;
         $this->approve = $a;

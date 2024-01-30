@@ -3,7 +3,7 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-require_once("item.php");
+require_once("items.php");
 
 enum Activity_T 
 {
@@ -43,19 +43,32 @@ class Activity
     public $seller_confirmation;
     public $buyer_confirmation;
 
-    public Activity(array $arr)
+    function __construct(array $arr)
     {
+        /*
+        1,SOLD,Cupids Bow and Arrow,26295,https://yw-web.yoworld.com/cdn/items/26/29/26295/26295_60_60.gif,950m,2024/01/28-10:54:06,550m,UNCONFIRMED,UNCONFIRMED,TIMESTAMP
+        2,BOUGHT,Cupids Bow and Arrow,26295,https://yw-web.yoworld.com/cdn/items/26/29/26295/26295_60_60.gif,950m,2024/01/28-10:54:06,550m,UNCONFIRMED,UNCONFIRMED,TIMESTAMP
+        3,VIEWED,Cupids Bow and Arrow,26295,https://yw-web.yoworld.com/cdn/items/26/29/26295/26295_60_60.gif,950m,2024/01/28-10:54:06,TIMESTAMP
+        4,CHANGED,Cupids Bow and Arrow,26295,https://yw-web.yoworld.com/cdn/items/26/29/26295/26295_60_60.gif,950m,2024/01/28-10:54:06,950m,TIMESTAMP
+        5,FS_POSTED,Cupids Bow and Arrow,26295,https://yw-web.yoworld.com/cdn/items/26/29/26295/26295_60_60.gif,950m,2024/01/28-10:54:06,950m,TIMESTAMP
+        6,WTB_POSTED,Cupids Bow and Arrow,26295,https://yw-web.yoworld.com/cdn/items/26/29/26295/26295_60_60.gif,950m,2024/01/28-10:54:06,950m,TIMESTAMP
+        */
         $this->i_idx = $arr[0];
-        $this->act_t = str2type($arr[1]);
+        $this->act_t = Activity::str2type($arr[1]);
+        $this->timestamp = $arr[count($arr)-1];
 
-        switch($acc_c) {
+        switch(count($arr) > 9) 
+        {
             case 9:
+                $this->price = $arr[count($arr)-2];
+            case 11:
+                $this->seller_confirmation = $arr[count($arr)-3];
+                $this->buyer_confirmation = $arr[count($arr)-2];
                 $this->item = (new Item(array_slice($arr, 2, 6)));
                 $this->price = $arr[7];
-                $this->timestamp = $arr[8];
                 break;
-            case
-        }
+        } 
+        
     }
 
     /*
