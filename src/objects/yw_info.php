@@ -10,16 +10,16 @@ class YW_INFO_LOGS
     public $approved_by;
     public $timestamp;
 
-    function __construct(string $p, bool $a, string $a_by, string $time)
+    function __construct(array $arr)
     {
-        $this->price = $p;
-        $this->approve = $a;
-        $this->approved_by = $a_by;
-        $this->timestamp = $time;
+        $this->price        = $arr[0];
+        $this->approve      = $arr[1];
+        $this->approved_by  = $arr[2];
+        $this->timestamp    = $arr[3];
     }
 
     /* Parsing Yoworld.Info's Prices After Item Information */
-    public static function parse_prices(string $content): YW_INFO_LOGS
+    public static function parse_prices(string $content): array
     {
         $yw_db_price = array();
         $lines = explode("\n", $content);

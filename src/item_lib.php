@@ -59,23 +59,26 @@ class Items
         /* Split String (Used as an if since there are no exception) */
         $lines = explode("\n", $api_resp);
 
-        if(str_contains($api_resp, "\n") && (!str_starts_with($api_resp, "[") && !str_ends_with($api_resp, "]")))
+        if(str_contains($api_resp, "\n"))
         {
+            if(count(explode(",", $lines[1])) == 4) {
             /* Remove Item Info On First Line for Yoworld.Info's Price Logs */
-            $content = str_replace($lines[0], "", $api_resp);
-            
-            $item_info = explode(",", remove_strings($lines[0], array("[", "]", "'")));
+                $content = str_replace($lines[0], "", $api_resp);
+                
+                $item_info = explode(",", remove_strings($lines[0], array("[", "]", "'")));
 
-            $item = new Item($item_info);
-            $item->ywinfo_prices = YW_INFO_LOGS::parse_prices($content);
+                $item = new Item($item_info);
+                $item->ywinfo_prices = YW_INFO_LOGS::parse_prices($content);
 
-            return (new Response(ResponseType::EXACT, $item));
+                return (new Response(ResponseType::EXACT, $item));
+            }
         }
         
         $this->found = array();
         foreach($lines as $line)
         {
             $info = explode(",", remove_strings($line, array("'", "[", "]")));
+            if(count($info) < 5) break;
             if(count($info) >= 5)
                 array_push($this->found, (new Item($info)));
         }
@@ -134,8 +137,9 @@ class Items
         {
             /* ('APP_TYPE','IP_ADDR','ITEM_ID','OLD_PRICE','SUGGESTED_PRICE','TIMESTAMP') */
             $info = explode(",", $line);
+            if(empty($line)) break;
 
-            if(count($info) == 6)
+            if(count($info) <= 6)
                 array_push($this->found, (new PriceLog($info)));
         }
 
@@ -165,7 +169,7 @@ class Items
         {
             /* ('APP_TYPE','IP_ADDR','ITEM_ID','OLD_PRICE','SUGGESTED_PRICE','TIMESTAMP') */
             $info = explode(",", $line);
-            if(count($info) == 6)
+            if(count($info) <= 6)
                 array_push($this->found, (new PriceLog($info)));
         }
 
@@ -181,14 +185,14 @@ class Items
         Description:
             Web requesting YoMarket's Statistics
     */
-    public static function reqStats(): string 
+    public static function reqStats(): Response 
     {
-        $api_resp = sendReq(self::STATISTICS_ENDPOINT);
+        $api_resp = sendReq(self::STATISTICS_ENDPOINT, array());
 
         if(empty($api_resp))
-            return "";
+            return (new Response(ResponseType::REQ_FAILED, 0));
 
-        return $api_resp;
+        return (new Response(ResponseType::REQ_SUCCESS, explode(",", $api_resp)));
     }
 }
 

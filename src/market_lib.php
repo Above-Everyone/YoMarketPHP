@@ -29,14 +29,22 @@ class Profiles
 
     public $profile;
     public $username;
-    function Profile(string $user)
+    function Profiles(string $user)
     {
         $this->username = $user;
     }
 
-    public function searchProfile(string $user): Response 
+    public function searchProfile(string $user, string $ip, string $viewed_by = ""): Response 
     {
-        $api_resp = sendReq(self::PROFILE_ENDPOINT. $user, array());
+        $parameters = array("ip" => $ip);
+
+        if(!empty($viewed_by))
+        {
+            echo "HERE";
+            $parameters = array("ip" => "$ip", "viewed_by" => "$viewed_by");
+        }
+        
+        $api_resp = sendReq(self::PROFILE_ENDPOINT. $user, $parameters);
 
         if(empty($api_resp))
             return (new Response(ResponseType::REQ_FAILED, 0));
@@ -45,6 +53,23 @@ class Profiles
             return (new Response(ResponseType::NONE, 0));
         
         return (new Response(ResponseType::REQ_SUCCESS, (new Profile($api_resp))));
+    }
+
+    public function LoginAuth(string $user, string $password, string $ip): Response 
+    {
+        $api_resp = sendReq(self::AUTH_ENDPOINT. $user, array("password" => $password, "ip" => $ip));
+
+        if(empty($api_resp))
+            return (new Response(ResponseType::REQ_FAILED, 0));
+
+        if($api_resp == "ERROR_MSG")
+            return (new Response(ResponseType::NONE, 0));
+
+        $t = new Profile($api_resp);
+        if($t->username != $user || $t->password != $password)
+            return (new Response(ResponseType::INVALID_INFO, 0));
+        
+        return (new Response(ResponseType::LOGIN_SUCCESS, (new Profile($api_resp))));
     }
 }
 

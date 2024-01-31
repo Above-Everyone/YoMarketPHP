@@ -53,14 +53,17 @@ class Profile
 	public $display_wtb;        // bool
 	public $display_activity;   // bool
 	
-    public $activites;          // Array[Activity]
+    public $activities;          // Array[Activity]
     public $invo;               // Array[Item]
 	public $fs_list;            // Array[FS]
 	public $wtb_list;           // Array[WTB]
+
+    public $raw_data;
         
     function __construct(array | string $acc_info)
     {
         if(is_string($acc_info)) {
+            $this->raw_data = $acc_info;
             $lines = explode("\n", $acc_info);
             $content = trim(str_replace($lines[0], "", $acc_info));
             $this->parse_content($content);
@@ -189,7 +192,7 @@ class Profile
     */
     public function parse_activities(array $lines): void
     {
-        $this->activites = array();
+        $this->activities = array();
         $start = false;
         
         foreach($lines as $act_line)
@@ -203,7 +206,7 @@ class Profile
             $line_info = explode(",", $act_line);
             if($start) {
                 if(count($line_info) > 9) {
-                    array_push($this->activites, (new Activity($line_info)));
+                    array_push($this->activities, (new Activity($line_info)));
                 }
             }
         }

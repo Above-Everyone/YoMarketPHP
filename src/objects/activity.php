@@ -15,7 +15,7 @@ enum Activity_T
 
     public static function type2str(Activity_T $act_t): string 
     {
-        switch($typ) 
+        switch($act_t) 
         {
             case Activity_T::item_sold:
                 return "item_sold";
@@ -25,6 +25,23 @@ enum Activity_T
                 return "item_viewed";
             case Activity_T::price_change:
                 return "price_change";
+        }
+        
+        return "";
+    }
+
+    public static function type2humanstr(Activity_T $act_t): string 
+    {
+        switch($act_t) 
+        {
+            case Activity_T::item_sold:
+                return "has sold";
+            case Activity_T::item_bought:
+                return "has bought";
+            case Activity_T::item_viewed:
+                return "has viewed";
+            case Activity_T::price_change:
+                return "has changed";
         }
         
         return "";

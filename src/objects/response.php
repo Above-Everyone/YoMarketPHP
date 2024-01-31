@@ -6,11 +6,11 @@ error_reporting(E_ALL);
 class Response 
 {
     public $type;
-    public $result;
+    public $results;
     function __construct(ResponseType $t, array | Profile | Item | int | string $r)
     {
         $this->type = $t;
-        $this->result = $r;
+        $this->results = $r;
     }
 
     public function type2str(): string 
@@ -23,10 +23,10 @@ class Response
         switch($this->type)
         {
             case ResponseType::EXACT:
-                return $this->result[0];
+                return $this->results[0];
 
             case ResponseType::EXTRA:
-                return $this->result;
+                return $this->results;
         }
 
         return array();
@@ -36,11 +36,23 @@ class Response
 enum ResponseType
 {
     case NONE;
+
+    /* Search Results Type */
     case EXACT;
     case EXTRA;
+
+    /* Item Updating */
     case ITEM_UPDATED;
     case FAILED_TO_UPDATE;
     case INVALID_PERM;
+
+    
+    /* Login Result Type */
+    case LOGIN_SUCCESS;
+    case INVALID_INFO;
+    case LOGIN_FAILED;
+
+    /* API SIGNALS */
     case REQ_FAILED;
     case REQ_SUCCESS;
 

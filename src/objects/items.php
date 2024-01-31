@@ -66,7 +66,7 @@ class PriceLog
     
     function __construct(array $arr)
     {
-        if(count($arr) != 6)
+        if(count($arr) <= 3)
             return;
 
         $this->app_t = $arr[0]; 
