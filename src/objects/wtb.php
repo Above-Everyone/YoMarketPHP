@@ -8,7 +8,7 @@ require_once("items.php");
 class WTB
 {
     public $item;
-    public $fs_price;
+    public $wtb_price;
 	public $buyer_confirmation;
 	public $seller_confirmation;
 	public $confirmed_transaction;
@@ -17,7 +17,7 @@ class WTB
     function __construct(array $item)
     {
         $this->item                 = new Item($item);
-        $this->fs_price             = $item[ count($item) - 4 ];
+        $this->wtb_price            = $item[ count($item) - 4 ];
         $this->seller_confirmation  = $item[ count($item) - 3 ];
         $this->buyer_confirmation   = $item[ count($item) - 2 ];
         $this->posted_timestamp     = $item[ count($item) - 1 ];

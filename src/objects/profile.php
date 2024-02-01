@@ -9,6 +9,56 @@ require_once("fs.php");
 require_once("wtb.php");
 require_once("utils.php");
 
+enum Settings_T
+{
+	case null;
+	case username;
+	case password;
+	case yoworld;
+	case yoworld_id;
+	case net_worth;
+	case discord;
+	case discord_id;
+	case facebook;
+	case facebook_id;
+
+	case display_badges;
+	case display_worth;
+	case display_invo;
+	case display_fs;
+	case display_wtb;
+	case display_activity;
+
+	case add_activity;
+
+	case add_to_invo;
+	case add_to_fs;
+	case add_to_wtb;
+	case rm_from_invo;
+	case rm_from_fs;
+	case rm_from_wtb;
+
+    public static function action2str(Settings_T $act_t): string 
+    {
+        switch($act_t)
+        {
+            case Settings_T::add_to_fs:
+                return "fs";
+            case Settings_T::add_to_wtb:
+                return "wtb";
+            case Settings_T::add_to_invo:
+                return "invo";
+            case Settings_T::rm_from_fs:
+                return "fs";
+            case Settings_T::rm_from_wtb:
+                return "wtb";
+            case Settings_T::rm_from_invo:
+                return "invo";
+        }
+        return "";
+    }
+}
+
 enum Badges 
 {
     case NONE;
@@ -205,8 +255,12 @@ class Profile
 
             $line_info = explode(",", $act_line);
             if($start) {
-                if(count($line_info) > 9) {
-                    array_push($this->activities, (new Activity($line_info)));
+                if(count($line_info) > 2) {
+                    $num = (int)$line_info[0];
+                    if(!Activity_T::isActValid($line_info[1]))
+                        continue;
+                    
+                    if( $num > 0 ) { array_push($this->activities, (new Activity($line_info))); }
                 }
             }
         }
@@ -234,7 +288,7 @@ class Profile
                 break; }
 
             if($start) {
-                if(count(explode(",", $line)) > 5) {
+                if(count(explode(",", $line)) > 4) {
                     array_push($this->invo, (new Item(explode(",", $line))));
                 }   
             }
@@ -267,7 +321,7 @@ class Profile
                 $fs_item_info = explode(",", $line);
                 // echo "\r\n\r\n";
                 // var_dump($fs_item_info);
-                if(count($fs_item_info) > 11) {
+                if(count($fs_item_info) > 7) {
                     array_push($this->fs_list, (new FS(explode(",", $line))));
                 }
             }
@@ -298,7 +352,7 @@ class Profile
 
             if($start) {
                 $wtb_item_info = explode(",", $line);
-                if(count($wtb_item_info) > 11) {
+                if(count($wtb_item_info) > 7) {
                     array_push($this->wtb_list, (new WTB($wtb_item_info)));
                 }
             }

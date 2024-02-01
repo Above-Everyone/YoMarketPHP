@@ -8,10 +8,17 @@ require_once("items.php");
 enum Activity_T 
 {
     case null;
+
 	case item_sold;
 	case item_bought;
 	case item_viewed;
+
 	case price_change;
+    case logged_in;
+
+    case fs_posted;
+    case wtb_posted;
+    case invo_posted;
 
     public static function type2str(Activity_T $act_t): string 
     {
@@ -25,6 +32,12 @@ enum Activity_T
                 return "item_viewed";
             case Activity_T::price_change:
                 return "price_change";
+            case Activity_T::fs_posted:
+                return "fs_posted";
+            case Activity_T::wtb_posted:
+                return "wtb_posted";
+            case Activity_T::invo_posted:
+                return "invo_posted";
         }
         
         return "";
@@ -42,9 +55,26 @@ enum Activity_T
                 return "has viewed";
             case Activity_T::price_change:
                 return "has changed";
+            case Activity_T::logged_in:
+                return "has logged on";
+            case Activity_T::fs_posted:
+                return "is selling";
+            case Activity_T::wtb_posted:
+                return "is looking for";
+            case Activity_T::invo_posted:
+                return "has added";
         }
         
         return "";
+    }
+    
+    public static function isActValid(string $q): bool 
+    {
+        $check = array("item_sold", "item_bought", "item_viewed", "price_change", "fs_posted", "wtb_posted", "logged_in");
+        if(in_array($q, $check))
+            return true;
+
+        return false;
     }
 }
 
@@ -74,7 +104,7 @@ class Activity
         $this->act_t = Activity::str2type($arr[1]);
         $this->timestamp = $arr[count($arr)-1];
 
-        switch(count($arr) > 9) 
+        switch(count($arr) > 7) 
         {
             case 9:
                 $this->price = $arr[count($arr)-2];
@@ -106,6 +136,14 @@ class Activity
                 return Activity_T::item_viewed;
             case "price_change":
                 return Activity_T::price_change;
+            case "logged_in":
+                return Activity_T::logged_in;
+            case "fs_posted":
+                return Activity_T::fs_posted;
+            case "wtb_posted":
+                return Activity_T::wtb_posted;
+            case "invo_posted":
+                return Activity_T::invo_posted;
         }
 
         return Activity_T::null;

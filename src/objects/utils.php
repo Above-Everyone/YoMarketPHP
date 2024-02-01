@@ -22,7 +22,7 @@ function sendReq(string $URL, array $EXTRA_PARM): string
             $req_url = $req_url. "&$parm_name=$parm_value";
         }
     }
-
+    
     try {
         $api_resp = file_get_contents($req_url);
         if(empty($api_resp))

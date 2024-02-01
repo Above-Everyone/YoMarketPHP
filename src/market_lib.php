@@ -18,13 +18,9 @@ class Profiles
     */
     const PROFILE_ENDPOINT      = "https://api.yomarket.info/profile?username=";
     const AUTH_ENDPOINT         = "https://api.yomarket.info/profile/auth?username=";
-    const SETTINGS_ENDPOINT     = "https://api.yomarket.info/profile/settings?data=";
-    const LIST_ADD_FS_ENDPOINT  = "https://api.yomarket.info/profile/list/fs/add?id=";
-    const LIST_RM_FS_ENDPOINT   = "https://api.yomarket.info/profile/list/fs/rm?id=";
-    const LIST_ADD_WTB_ENDPOINT = "https://api.yomarket.info/profile/list/wtb/add?id=";
-    const LIST_RM_WTB_ENDPOINT  = "https://api.yomarket.info/profile/list/wtb/rm?id=";
-    const LIST_ADD_INVO_ENDPOINT    = "https://api.yomarket.info/profile/list/invo/add?id=";
-    const LIST_RM_INVO_ENDPOINT     = "https://api.yomarket.info/profile/list/invo/rm?id=";
+    const SETTINGS_ENDPOINT     = "https://api.yomarket.info/profile/edit/settings?data=";
+    const LIST_ADD_ENDPOINT     = "https://api.yomarket.info/profile/edit/add?username=";
+    const LIST_RM_ENDPOINT      = "https://api.yomarket.info/profile/edit/rm?username=";
     public $Response;
 
     public $profile;
@@ -57,7 +53,7 @@ class Profiles
 
     public function LoginAuth(string $user, string $password, string $ip): Response 
     {
-        $api_resp = sendReq(self::AUTH_ENDPOINT. $user, array("password" => $password, "ip" => $ip));
+        $api_resp = sendReq(self::AUTH_ENDPOINT. $user, array("password" => $password));
 
         if(empty($api_resp))
             return (new Response(ResponseType::REQ_FAILED, 0));
@@ -70,6 +66,36 @@ class Profiles
             return (new Response(ResponseType::INVALID_INFO, 0));
         
         return (new Response(ResponseType::LOGIN_SUCCESS, (new Profile($api_resp))));
+    }
+
+    public function addItem(string $user, string $password, string $ip, string $itemID, string $price, Settings_T $list): Response
+    {
+        $list_t = Settings_T::action2str($list);
+
+        $api_resp = sendReq(self::LIST_ADD_ENDPOINT. $user, array("password" => $password, "id" => $itemID, "price" => $price, "list" => $list_t));
+        
+        if(str_contains($api_resp, "[ X ]"))
+            return (new Response(ResponseType::NONE, 0));
+
+        if(str_contains($api_resp, "[ + ] Item added!"))
+            return (new Response(ResponseType::REQ_SUCCESS, true));
+
+        return (new Response(ResponseType::NONE, 0));
+    }
+
+    public function rmItem(string $user, string $password, string $ip, string $itemID, Settings_T $llist): Response
+    {
+        $list_t = Settings_T::action2str($llist);
+
+        $api_resp = sendReq(self::LIST_RM_ENDPOINT. $user, array("password" => $password, "id" => $itemID, "list" => $list_t));
+
+        if(str_contains($api_resp, "[ X ]"))
+            return (new Response(ResponseType::NONE, 0));
+
+        if(str_contains($api_resp, "[ + ] Item added!"))
+            return (new Response(ResponseType::REQ_SUCCESS, true));
+
+        return (new Response(ResponseType::NONE, 0));
     }
 }
 
