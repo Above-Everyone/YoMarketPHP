@@ -1,6 +1,6 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
 error_reporting(E_ALL);
 
 require_once("activity.php");
@@ -206,7 +206,7 @@ class Profile
                 case "developer":
                     array_push($this->badges, Badges::DEVELOPER);
                     break;
-                case "verfied":
+                case "verified":
                     array_push($this->badges, Badges::VERIFIED);
                     break;
                 case "ae":
@@ -250,17 +250,17 @@ class Profile
             if(remove_strings($act_line, array(" ", "\n")) === "@ACTIVITIES") {
                 $start = true; }
             
-            if(remove_strings($act_line, array(" ", "\n")) == "@INVENTORY" || strpos($act_line, "@INVENTORY") !== false) {
+            if(remove_strings($act_line, array(" ", "\n")) == "@INVENTORY") {
                 break; }
 
             $line_info = explode(",", $act_line);
             if($start) {
-                if(count($line_info) > 2) {
+                if(count($line_info) > 1) {
                     $num = (int)$line_info[0];
                     if(!Activity_T::isActValid($line_info[1]))
                         continue;
                     
-                    if( $num > 0 ) { array_push($this->activities, (new Activity($line_info))); }
+                    if( is_numeric($num) ) { array_push($this->activities, (new Activity($line_info))); }
                 }
             }
         }

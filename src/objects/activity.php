@@ -1,6 +1,6 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
 error_reporting(E_ALL);
 
 require_once("items.php");
@@ -70,7 +70,7 @@ enum Activity_T
     
     public static function isActValid(string $q): bool 
     {
-        $check = array("item_sold", "item_bought", "item_viewed", "price_change", "fs_posted", "wtb_posted", "logged_in");
+        $check = array("item_sold", "item_bought", "item_viewed", "price_change", "fs_posted", "wtb_posted", "logged_in", "invo_posted");
         if(in_array($q, $check))
             return true;
 
@@ -104,17 +104,19 @@ class Activity
         $this->act_t = Activity::str2type($arr[1]);
         $this->timestamp = $arr[count($arr)-1];
 
-        switch(count($arr) > 7) 
-        {
-            case 9:
-                $this->price = $arr[count($arr)-2];
-            case 11:
-                $this->seller_confirmation = $arr[count($arr)-3];
-                $this->buyer_confirmation = $arr[count($arr)-2];
-                $this->item = (new Item(array_slice($arr, 2, 6)));
-                $this->price = $arr[7];
-                break;
-        } 
+        if (count($arr) > 1) {
+            switch(count($arr) > 7) 
+            {
+                case 9:
+                    $this->price = $arr[count($arr)-2];
+                case 11:
+                    $this->seller_confirmation = $arr[count($arr)-3];
+                    $this->buyer_confirmation = $arr[count($arr)-2];
+                    $this->item = (new Item(array_slice($arr, 2, 6)));
+                    $this->price = $arr[7];
+                    break;
+            } 
+        }
         
     }
 

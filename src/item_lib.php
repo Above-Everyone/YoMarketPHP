@@ -1,6 +1,6 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
 error_reporting(E_ALL);
 
 require_once("objects/utils.php");
@@ -13,22 +13,23 @@ class Items
     /*
         API Endpoints
     */
-    const STATISTICS_ENDPOINT       = "https://api.yomarket.info/statistics";
+    const STATISTICS_ENDPOINT       = "https://backup.yomarket.info/statistics";
 
-    const SEARCH_ENDPOINT           = "https://api.yomarket.info/search?q=" ;
-    const CHANGE_ENDPOINT           = "https://api.yomarket.info/change?id=";
-    const PRICE_LOGS_ENDPOINT       = "https://api.yomarket.info/price_logs";
-    const SUGGESTION_LOGS_ENDPOINT  = "https://api.yomarket.info/all_suggestion";
-    const SAVE_ENDPOINT             = "https://api.yomarket.info/save";
-
-    const PROFILE_ENDPOINT          = "https://api.yomarket.info/profile?username=";
-    const AUTH_ENDPOINT             = "https://api.yomarket.info/auth?username=";
+    const SEARCH_ENDPOINT           = "https://backup.yomarket.info/search?q=" ;
+    const CHANGE_ENDPOINT           = "https://backup.yomarket.info/change?id=";
+    const PRICE_LOGS_ENDPOINT       = "https://backup.yomarket.info/price_logs";
+    const SUGGESTION_LOGS_ENDPOINT  = "https://backup.yomarket.info/all_suggestion";
+    const SAVE_ENDPOINT             = "https://backup.yomarket.info/save";
+    
+    const PROFILE_ENDPOINT          = "https://backup.yomarket.info/profile?username=";
+    const AUTH_ENDPOINT             = "https://backup.yomarket.info/auth?username=";
 
     // Items->Response->getResults(); // array | Item
     // Items->Response->type2str(); // string
     public $Respone;
 
-    public $query;
+    public array $found;
+    public string $query;
     function Items(string $q) {
         $this->query = $q;
     }
@@ -48,9 +49,9 @@ class Items
             return (new Response(ResponseType::REQ_FAILED, 0));
 
         $searchErrors = array("[ X ] Error, You must enter an Item name or ID", 
-                              "[ X ] Error, No item was found for ${new_query}");
+                              "[ X ] Error, No item was found for $new_query");
 
-        if(in_array($api_resp, $searchErrors))
+        if(in_array($api_resp, $searchErrors) || str_contains($api_resp, "[ X ]"))
             return (new Response(ResponseType::NONE, 0));
 
         if(!str_contains($api_resp, "\n"))
